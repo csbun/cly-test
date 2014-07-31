@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+
+// 依赖
+var chalk = require('chalk'),
+    bower = require('bower'),
+    info = require('../package.json');
+
+// 参数
+var director = process.argv[2],
+    params = process.argv[3];
+
+switch (director) {
+    case 'install':
+    case 'i':
+        bowerInstall(params);
+        break;
+    default:
+        help();
+}
+
+/*
+ * 用 bower 安装 pkg
+ */
+function bowerInstall(pkg) {
+    if (!pkg) {
+        console.log(chalk.bold.red('package name is required!'));
+        return;
+    }
+    console.log('installing ' + pkg + '...');
+    bower.commands
+        .install([pkg])
+        .on('end', function (installed, b, c) {
+            var pkgMeta = ((installed || '')[pkg] || '').pkgMeta;
+            if (pkgMeta) {
+                console.log(pkgMeta.name + ' (v' + pkgMeta.version + ') installed');
+            }
+        });
+}
+
+/*
+ * 帮助信息
+ */
+function help() {
+    console.log('\n  ' + chalk.cyan(info.name) + ' (v' + info.version + '): ' + info.description);
+    console.log('  install: cly install <pkg>\n');
+}
